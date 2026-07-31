@@ -18,13 +18,13 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements-dev.txt
+        run: pip install -r requirements.txt
 
       - name: Check syntax (compile all .py files)
         run: python -m py_compile cache.py semantic_cache.py token_optimizer.py router.py main.py benchmark.py
 
       - name: Run unit tests
-        run: python -m pytest tests/ -v
+        run: python -m pytest . -v
 
   docker-build:
     runs-on: ubuntu-latest

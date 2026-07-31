@@ -7,9 +7,11 @@ semantic = SemanticCache()
 optimizer = TokenOptimizer()
 
 def call_llm(prompt):
+    import os
     import requests
+    ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
     r = requests.post(
-        "http://localhost:11434/api/generate",
+        f"{ollama_host}/api/generate",
         json={"model": "qwen2.5:1.5b", "prompt": prompt, "stream": False}
     )
     return r.json()["response"]

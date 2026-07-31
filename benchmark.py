@@ -1,5 +1,5 @@
 import time
-from main import process
+from main import process, cache
 
 class Benchmark:
 
@@ -10,12 +10,20 @@ class Benchmark:
     def run(self):
         print("\n🚀 Iniciando benchmark...\n")
 
+        if not self.queries:
+            print("Nenhuma query fornecida.")
+            return
+
         start_total = time.time()
 
         for q in self.queries:
             start = time.time()
 
-            response = process(q)
+            try:
+                response = process(q)
+            except Exception as e:
+                print(f"[ERRO] Falha ao processar '{q}': {e}")
+                continue
 
             elapsed = time.time() - start
 
@@ -30,16 +38,20 @@ class Benchmark:
         self.report(total_time)
 
     def report(self, total_time):
+        if not self.results:
+            print("\nNenhum resultado para reportar (todas as queries falharam).")
+            return
+
         avg_time = sum(r["time"] for r in self.results) / len(self.results)
+        total_chars = sum(r["response_size"] for r in self.results)
+        cache_entries = len(cache.db) if hasattr(cache, "db") else 0
 
         print("\n📊 RESULTADO FINAL")
         print(f"Total queries: {len(self.results)}")
         print(f"Tempo total: {total_time:.2f}s")
         print(f"Tempo médio: {avg_time:.2f}s")
-
-        # estimativa simples
-        tokens_saved = len(self.results) * 0.7  # ajuste depois
-        print(f"Economia estimada: {tokens_saved*100:.0f}%")
+        print(f"Total de caracteres nas respostas: {total_chars}")
+        print(f"Entradas no cache exato ao final: {cache_entries}")
 
 
 if __name__ == "__main__":

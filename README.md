@@ -4,19 +4,20 @@ Protótipo de camada de otimização e cache para consultas a LLMs locais (via [
 
 ## Status
 
-🚧 Projeto em estágio inicial / protótipo. Ainda não possui testes automatizados.
+🚧 Projeto em estágio inicial / protótipo. Todos os módulos importam e rodam sem erro de código (verificado); a execução completa de `main.py`/`benchmark.py` ainda depende de dois serviços externos: Ollama local e download do modelo de embeddings na primeira execução.
 
 ## Estrutura
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `main.py` | Loop principal: recebe a pergunta, consulta os caches, otimiza o texto e chama o LLM local |
-| `cache.py` | `AutoCache` — cache exato (chave = texto da query) |
-| `semantic_cache.py` | `SemanticCache` — cache por similaridade de embeddings (`sentence-transformers`) |
-| `token_optimizer.py` | `TokenOptimizer` — limpeza e compressão/resumo de texto antes de enviar ao modelo |
-| `router.py` | `MCPRouter` — roteia a query para uma categoria definida em `registry.json` |
-| `benchmark.py` | Mede tempo de resposta e economia estimada de tokens rodando `main.process()` em lote |
-| `registry.json` | Categorias usadas pelo `MCPRouter` |
+| Arquivo                | Responsabilidade                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| `main.py`            | Loop principal: recebe a pergunta, consulta os caches, otimiza o texto e chama o LLM local |
+| `cache.py`           | `AutoCache` — cache exato (chave = texto da query)                                      |
+| `semantic_cache.py`  | `SemanticCache` — cache por similaridade de embeddings (`sentence-transformers`)      |
+| `token_optimizer.py` | `TokenOptimizer` — limpeza e compressão/resumo de texto antes de enviar ao modelo      |
+| `router.py`          | `MCPRouter` — roteia a query para uma categoria definida em `registry.json`           |
+| `benchmark.py`       | Mede tempo de resposta rodando`main.process()` em lote                                   |
+| `registry.json`      | Categorias usadas pelo`MCPRouter`                                                        |
+| `Dockerfile`         | Imagem Docker da aplicação                                                               |
 
 ## Requisitos
 
@@ -33,7 +34,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Digite a pergunta no prompt interativo. O fluxo é:
+Fluxo:
 
 1. Verifica cache exato (`AutoCache`)
 2. Verifica cache semântico (`SemanticCache`, threshold de similaridade 0.85)
@@ -46,23 +47,27 @@ Digite a pergunta no prompt interativo. O fluxo é:
 python benchmark.py
 ```
 
-Roda uma lista fixa de queries (com repetições propositais) e imprime tempo total, tempo médio e uma estimativa simples de economia de tokens.
+Roda uma lista fixa de queries (com repetições propositais) e imprime tempo total, tempo médio, tamanho total das respostas e quantidade de entradas no cache exato.
+
+## Docker
+
+```bash
+docker build -t tokenforge .
+docker run -e OLLAMA_HOST=http://host.docker.internal:11434 tokenforge
+```
+
+Em Linux (sem Docker Desktop), pode ser necessário `--add-host=host.docker.internal:host-gateway` ou `--network host`.
 
 ## Limitações conhecidas
 
-- O cache semântico é mantido em memória (`list`), sem persistência entre execuções.
-- A estimativa de "economia de tokens" no benchmark é um valor fixo (`0.7`), não calculada a partir de tokens reais.
-- `router.py` depende do endpoint local do Ollama (`http://localhost:11434`) — sem essa dependência rodando, `main.py` falha na chamada ao LLM.
+- O cache semântico é mantido em memória, sem persistência entre execuções.
+- `main.py` depende de um Ollama local respondendo em `OLLAMA_HOST` (padrão `http://localhost:11434`).
+- O modelo de embeddings (`all-MiniLM-L6-v2`) é baixado do Hugging Face na primeira execução — requer acesso à internet nesse momento.
 
 ## Licença
 
 Distribuído sob a licença MIT — veja [LICENSE](LICENSE).
 
-👤 Author
+**AUTOR**
 
-Izaias Elias
-GitHub: https://github.com/shadowruge
-
-⭐ Final Note
-
-TokenMind AI is not just a tool — it’s a cost-optimization layer for AI systems.
+Izaias de oliveira elias

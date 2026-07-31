@@ -1,0 +1,16 @@
+{
+  "categories": {
+    "programming": {
+      "description": "Consultas relacionadas a código, repositórios e desenvolvimento"
+    },
+    "token_optimization": {
+      "description": "Consultas relacionadas a busca na web e otimização de tokens"
+    },
+    "rag_memory": {
+      "description": "Consultas relacionadas a memória, RAG e recuperação de contexto"
+    },
+    "reasoning_agents": {
+      "description": "Consultas gerais de raciocínio e agentes (categoria padrão)"
+    }
+  }
+}

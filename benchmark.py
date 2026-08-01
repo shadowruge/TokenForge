@@ -3,8 +3,8 @@ from main import process, cache
 
 class Benchmark:
 
-    def __init__(self, queries):
-        self.queries = queries
+    def __init__(self, query_list):
+        self.queries = query_list
         self.results = []
 
     def run(self):
@@ -21,7 +21,7 @@ class Benchmark:
 
             try:
                 response = process(q)
-            except Exception as e:
+            except (ValueError, RuntimeError, TypeError, KeyError, AttributeError) as e:
                 print(f"[ERRO] Falha ao processar '{q}': {e}")
                 continue
 

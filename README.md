@@ -4,13 +4,13 @@ Protótipo de camada de otimização e cache para consultas a LLMs locais (via [
 
 ## Status
 
-🚧 Projeto em estágio inicial / protótipo. Todos os módulos importam e rodam sem erro de código (verificado); a execução completa de `main.py`/`benchmark.py` ainda depende de dois serviços externos: Ollama local e download do modelo de embeddings na primeira execução.
+✅ Projeto em estágio inicial / protótipo. Todos os módulos importam e os **34 testes unitários passam** (execução via `pytest`). A execução completa de `main.py`/`benchmark.py` ainda depende de dois serviços externos: Ollama local e download do modelo de embeddings na primeira execução.
 
 ## Estrutura
 
 | Arquivo                | Responsabilidade                                                                           |
 | ---------------------- | ------------------------------------------------------------------------------------------ |
-| `main.py`            | Loop principal: recebe a pergunta, consulta os caches, otimiza o texto e chama o LLM local |
+| `main.py`            | Loop principal: recebe a pergunta, consulta os caches, otimiza o texto, roteia e chama o LLM local |
 | `cache.py`           | `AutoCache` — cache exato (chave = texto da query)                                      |
 | `semantic_cache.py`  | `SemanticCache` — cache por similaridade de embeddings (`sentence-transformers`)      |
 | `token_optimizer.py` | `TokenOptimizer` — limpeza e compressão/resumo de texto antes de enviar ao modelo      |
@@ -38,8 +38,9 @@ Fluxo:
 
 1. Verifica cache exato (`AutoCache`)
 2. Verifica cache semântico (`SemanticCache`, threshold de similaridade 0.85)
-3. Se não houver hit, otimiza o texto (`TokenOptimizer`) e envia ao LLM local
-4. Salva a resposta em ambos os caches
+3. Se não houver hit, roteia a query para uma categoria (`MCPRouter`)
+4. Se não houver hit, otimiza o texto (`TokenOptimizer`) e envia ao LLM local
+5. Salva a resposta em ambos os caches
 
 ## Benchmark
 
@@ -60,7 +61,7 @@ Em Linux (sem Docker Desktop), pode ser necessário `--add-host=host.docker.inte
 
 ## Limitações conhecidas
 
-- O cache semântico é mantido em memória, sem persistência entre execuções.
+- O cache semântico é mantido em memória com limite de `MAX_CACHE_SIZE` entradas (1000), sem persistência entre execuções.
 - `main.py` depende de um Ollama local respondendo em `OLLAMA_HOST` (padrão `http://localhost:11434`).
 - O modelo de embeddings (`all-MiniLM-L6-v2`) é baixado do Hugging Face na primeira execução — requer acesso à internet nesse momento.
 

@@ -21,7 +21,8 @@ class Benchmark:
 
             try:
                 response = process(q)
-            except (ValueError, RuntimeError, TypeError, KeyError, AttributeError) as e:
+            except Exception as e:
+                # O benchmark deve continuar com as demais queries mesmo se uma falhar
                 print(f"[ERRO] Falha ao processar '{q}': {e}")
                 continue
 

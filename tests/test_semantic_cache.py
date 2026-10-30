@@ -57,3 +57,15 @@ def test_get_below_threshold_returns_none(semantic_cache):
     result = cache.get("pergunta totalmente diferente")
 
     assert result is None
+
+
+def test_set_evicts_oldest_entry_when_cache_is_full(semantic_cache):
+    cache, mock_model = semantic_cache
+    mock_model.encode.return_value = np.array([1.0, 0.0])
+
+    for i in range(SemanticCache.MAX_CACHE_SIZE + 1):
+        cache.set(f"pergunta {i}", f"resposta {i}")
+
+    assert len(cache.db) == SemanticCache.MAX_CACHE_SIZE
+    # o mais antigo ("pergunta 0") deve ter sido removido
+    assert cache.db[0]["query"] == "pergunta 1"

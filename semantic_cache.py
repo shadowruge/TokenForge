@@ -3,6 +3,8 @@ import numpy as np
 
 class SemanticCache:
 
+    MAX_CACHE_SIZE = 1000  # limite de entradas mantidas em memoria
+
     def __init__(self):
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.db = []
@@ -27,3 +29,7 @@ class SemanticCache:
             "response": response,
             "vector": vec
         })
+
+        # Evita crescimento infinito da lista em memoria
+        if len(self.db) > self.MAX_CACHE_SIZE:
+            self.db.pop(0)  # remove o mais antigo

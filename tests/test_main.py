@@ -34,3 +34,15 @@ def test_process_optimizes_query_before_calling_llm(main_module):
 
     mock_optimize.assert_called_once()
     mock_llm.assert_called_once_with("query otimizada")
+
+
+def test_process_routes_query_to_category_before_optimizing(main_module):
+    with patch.object(main_module.router, "route", return_value={"description": "programacao"}) as mock_route, \
+         patch.object(main_module.optimizer, "optimize", return_value="query otimizada") as mock_optimize, \
+         patch.object(main_module, "call_llm", return_value="resposta") as mock_llm:
+        result = main_module.process("como fazer codigo python")
+
+    mock_route.assert_called_once()
+    mock_optimize.assert_called_once()
+    mock_llm.assert_called_once_with("query otimizada")
+    assert result == "resposta"
